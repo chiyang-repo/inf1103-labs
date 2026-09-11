@@ -12,7 +12,7 @@ while True:
         if user_input.isdigit() == False:
             if user_input == 'quit': #exit the program if user types 'quit'
                 print(f"\nYou have exited the program. \nTotal unit processed: {inventory} \nTotal number of failed entries: {count}")
-                break
+                break #Exit the loop and program
             else: # Increment failed entry
                 count += 1
                 print("\nInvalid input. Please enter a valid number or type 'quit' to exit.")
@@ -25,7 +25,7 @@ while True:
     else: # Inventory limit reached
         count += 1 # Increment failed entry
         print("\nInventory limit reached. Cannot add more items.")
-        break
+        break #Exit the loop and program
 
         
         
