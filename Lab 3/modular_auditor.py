@@ -2,6 +2,9 @@
 inventory = 0
 count = 0
 
+cost_per_unit = 0.5
+
+
 def get_valid_input(user_input):
     input = user_input 
     if input.isdigit() == False:
@@ -15,8 +18,8 @@ def get_valid_input(user_input):
     else:
         return int(input)
 
-def process_delivery():
-    
+def process_delivery(quantity, cost_per_unit):
+    return quantity * cost_per_unit
 
 while True:
     print(f"\nCurrent inventory: {inventory}") # Display current inventory
@@ -28,7 +31,9 @@ while True:
             print("\nInvalid input. Please enter a non-negative number.")
         else: #Successful entry
             inventory += validated_user_input # Increment inventory by user input
-            print(f"\nInventory updated. Current stock: {inventory}")    
+            print(f"\nInventory updated. Current stock: {inventory}")
+    else:
+        inventory_cost = process_delivery(inventory, cost_per_unit)
 
 
 
