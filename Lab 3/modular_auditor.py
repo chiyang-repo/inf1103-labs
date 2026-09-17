@@ -21,6 +21,10 @@ def get_valid_input(user_input):
 def process_delivery(quantity, cost_per_unit):
     return quantity * cost_per_unit
 
+def calculate_tax(delivery_cost):
+    tax_rate = 0.10
+    return delivery_cost * tax_rate
+
 while True:
     print(f"\nCurrent inventory: {inventory}") # Display current inventory
     user_input = input("\nEnter the number of items to add/update to inventory (or type 'quit' to quit): ") # Get user input
@@ -33,7 +37,10 @@ while True:
             inventory += validated_user_input # Increment inventory by user input
             print(f"\nInventory updated. Current stock: {inventory}")
     else:
-        inventory_cost = process_delivery(inventory, cost_per_unit)
+        delivery_cost = process_delivery(inventory, cost_per_unit)
+        tax = calculate_tax(delivery_cost)
+        report = generate_report(inventory, delivery_cost, tax)
+        
 
 
 
