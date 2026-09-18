@@ -39,8 +39,7 @@ def main():
     inventory = 0
     count = 0
     cost_per_unit = 0.5
-
-    while True:
+    while True: 
         print(f"\nCurrent inventory: {inventory}") # Display current inventory
         user_input = input("\nEnter the number of items to add/update to inventory (or type 'quit' to quit): ") # Get user input
         validated_user_input = get_valid_input(user_input) #run the user input through the validation function
@@ -53,9 +52,9 @@ def main():
         elif validated_user_input is None:
             count += 1 # Increment failed entry
         else:
-            delivery_cost = process_delivery(inventory, cost_per_unit)
-            tax = calculate_tax(delivery_cost)
-            report = generate_report(inventory, delivery_cost, count)
+            delivery_cost = process_delivery(inventory, cost_per_unit) # Calculate delivery cost based on inventory and cost per unit
+            tax = calculate_tax(delivery_cost) # Calculate tax based on delivery cost
+            report = generate_report(inventory, delivery_cost, count) # Generate report with inventory, delivery cost, and failed entry count
             break
 main()
         
