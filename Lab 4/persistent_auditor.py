@@ -47,7 +47,7 @@ def load_inventory():
                 for row in range(1, len(inventory_data)):  # Skip the header row
                     print(f"{inventory_data[row][0]}, {inventory_data[row][1]}, {inventory_data[row][2]}, {inventory_data[row][3]}")
             else:
-                #
+                print("Inventory is empty.")
     except FileNotFoundError:
         print("Inventory file not found. Starting with an empty inventory.")
         initialize_inventory_file()
@@ -60,6 +60,10 @@ def initialize_inventory_file():
         print("Inventory file created.")
 
 def add_items():
+    with open("inventory.csv", 'r', newline='') as file:
+        reader = csv.reader(file)
+        inventory_data = list(reader)
+        product_id = len(inventory_data)  # Get the next product ID based on the number of existing rows
     with open("inventory.csv", 'a', newline='') as file:
         while True:
             product_name = input("Enter the product name: ")
@@ -69,30 +73,33 @@ def add_items():
             if valid_product is True:
                 # Write the product data to the CSV file
                 writer = csv.writer(file)
-                writer.writerow([product_name, product_quantity, product_price])
+                writer.writerow([product_id, product_name, product_quantity, round(float(product_price), 2)])
                 print("Product added successfully.")
+                break
             else:
                 print("Invalid product entry. Please try again.")
+                
+
 
 def validate_product_entry(product_name, product_quantity, product_price):
     if not product_name or not product_quantity or not product_price:
-        print("All fields are required. Please provide valid inputs.")
+        print("\nAll fields are required. Please provide valid inputs.")
         return False
     elif not product_quantity.isdigit() or int(product_quantity) < 0:
-        print("Invalid quantity. Please enter a non-negative integer.")
+        print("\nInvalid quantity. Please enter a non-negative integer.")
         return False
-    elif not re.match(r"^\d+\.\d{2}$", product_price):
-        print("Invalid price. Please enter a non-negative number.")
+    elif not re.match(r"^\d+(\.\d+)?$", product_price):
+        print("\nInvalid price. Please enter a non-negative number.")
         return False
     return True
 
 # Main function
 def main():
+    add_items()
     # Inventory stocks upon initialization
-    if not os.path.exists("inventory.csv"):
+    """ if not os.path.exists("inventory.csv"):
         initialize_inventory_file()
-
-    checked_inventory = load_inventory()
+        checked_inventory = load_inventory()"""
     
 
     """while True: 
