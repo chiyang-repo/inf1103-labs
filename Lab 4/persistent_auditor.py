@@ -1,10 +1,12 @@
-import csv
+# Package imports
+import csv 
 import re
 from datetime import datetime
 
+# Function to load inventory from CSV file
 def load_inventory():
     try:
-        with open("inventory.csv", 'r') as file:
+        with open("inventory.csv", 'r') as file:    # Open the CSV file in read mode
             reader = csv.reader(file)
             inventory_data = list(reader)
             inventory = ""
@@ -15,41 +17,41 @@ def load_inventory():
                 return inventory
             else:
                 return "Inventory is currently empty."
-    except FileNotFoundError:
+    except FileNotFoundError: # If the inventory file does not exist, create a new one and return an empty inventory message
         initialize_inventory_file()
         return "Inventory file not found. Starting with an empty inventory."
         
 
 
-def initialize_inventory_file():
-    with open("inventory.csv", 'w', newline='') as file:
+def initialize_inventory_file(): # Create a new inventory CSV file with a header row
+    with open("inventory.csv", 'w', newline='') as file: # Open the CSV file in write mode
         writer = csv.writer(file)
         writer.writerow(["ID", "PRODUCT_NAME", "QUANTITY", "PRICE"])  # Write the header row
         print("Inventory file created.")
 
-def add_items():
-    with open("inventory.csv", 'r', newline='') as file:
+def add_items(): # Add new products to the inventory
+    with open("inventory.csv", 'r', newline='') as file: # Open the CSV file in read mode to get the current product ID
         reader = csv.reader(file)
         inventory_data = list(reader)
         product_id = len(inventory_data)  # Get the next product ID based on the number of existing rows
-    with open("inventory.csv", 'a', newline='') as file:
+    with open("inventory.csv", 'a', newline='') as file: # Open the CSV file in append mode to add new products
         while True:
-            product_name = input("Enter the product name: ")
-            product_quantity = input("Enter the product quantity: ")
-            product_price = input("Enter the product price: ")
-            valid_product = validate_product_entry(product_name,product_quantity,product_price)
+            product_name = input("Enter the product name: ") # Prompt the user to enter the product name
+            product_quantity = input("Enter the product quantity: ") # Prompt the user to enter the product quantity
+            product_price = input("Enter the product price: ") # Prompt the user to enter the product price
+            valid_product = validate_product_entry(product_name,product_quantity,product_price) # Validate the product entry
             if valid_product is True:
                 # Write the product data to the CSV file
                 writer = csv.writer(file)
-                writer.writerow([product_id, product_name, product_quantity, round(float(product_price), 2)])
+                writer.writerow([product_id, product_name, product_quantity, round(float(product_price), 2)]) # Write the product data to the CSV file
                 print("Product added successfully.")
-                transactional_history("ADDED", product_name, product_quantity, product_price)
+                transactional_history("ADDED", product_name, product_quantity, product_price) # Log the product addition to the transactional history
                 break
             else:
-                print("Invalid product entry. Please try again.")
+                print("Invalid product entry. Please try again.") # Prompt the user to re-enter the product details if the entry is invalid
                 
-def update_items():
-    with open("inventory.csv", 'r', newline='') as file:
+def update_items(): # Update existing products in the inventory
+    with open("inventory.csv", 'r', newline='') as file: # Open the CSV file in read mode to get the current inventory data
         reader = csv.reader(file)
         inventory_data = list(reader)
         if len(inventory_data) <= 1:  # Check if there are any products in the inventory
@@ -59,35 +61,35 @@ def update_items():
         for row in range(1, len(inventory_data)):  # Skip the header row
             print(f"{inventory_data[row][0]}, {inventory_data[row][1]}, {inventory_data[row][2]}, {inventory_data[row][3]}")
         while True:
-            product_id = input("Enter the product ID to update: ")
+            product_id = input("Enter the product ID to update: ") # Prompt the user to enter the product ID of the product they want to update
             if not product_id.isdigit() or int(product_id) < 1 or int(product_id) >= len(inventory_data):
                 print("Invalid product ID. Please try again.")
                 continue
-            product_name = input("Enter the new product name: ")
-            product_quantity = input("Enter the new product quantity: ")
-            product_price = input("Enter the new product price: ")
-            valid_product = validate_product_entry(product_name,product_quantity,product_price)
+            product_name = input("Enter the new product name: ") # Prompt the user to enter the new product name
+            product_quantity = input("Enter the new product quantity: ") # Prompt the user to enter the new product quantity
+            product_price = input("Enter the new product price: ") # Prompt the user to enter the new product price
+            valid_product = validate_product_entry(product_name,product_quantity,product_price) # Validate the product entry
             if valid_product is True:
                 # Update the product data in the CSV file
                 inventory_data[int(product_id)][1] = product_name
                 inventory_data[int(product_id)][2] = product_quantity
                 inventory_data[int(product_id)][3] = round(float(product_price), 2)
-                with open("inventory.csv", 'w', newline='') as file:
+                with open("inventory.csv", 'w', newline='') as file: # Open the CSV file in write mode to update the product data
                     writer = csv.writer(file)
                     writer.writerows(inventory_data)
                 print("\nProduct updated successfully.")
-                transactional_history("UPDATED", product_name, product_quantity, product_price)
+                transactional_history("UPDATED", product_name, product_quantity, product_price) # Log the product update to the transactional history
                 break
             else:
                 print("Invalid product entry. Please try again.")
 
-def transactional_history(action, product_name, product_quantity, product_price):
+def transactional_history(action, product_name, product_quantity, product_price): # Log the product addition or update to the transactional history file
     with open("inventory.txt", 'a') as file:
         file.write(f"[{datetime.now()}] {action}: {product_name}, Quantity: {product_quantity}, Price: {product_price}\n")
     return
 
-def order_list():
-    with open("inventory.csv", 'r', newline='') as file:
+def order_list(): # Create an order list based on the current inventory
+    with open("inventory.csv", 'r', newline='') as file: # Open the CSV file in read mode to get the current inventory data
         reader = csv.reader(file)
         inventory_data = list(reader)
         if len(inventory_data) <= 1:  # Check if there are any products in the inventory
@@ -99,12 +101,12 @@ def order_list():
                 print(f"{inventory_data[row][0]}, {inventory_data[row][1]}, {inventory_data[row][2]}, {inventory_data[row][3]}")
             with open("orders.txt", 'w') as file:
                 while True:
-                    product_id = input("Enter the product ID to add to the order list: ")
+                    product_id = input("Enter the product ID to add to the order list: ") # Prompt the user to enter the product ID of the product they want to add to the order list
                     if not product_id.isdigit() or int(product_id) < 1 or int(product_id) >= len(inventory_data):
                         print("Invalid product ID. Please try again.")
                     else:
                         while True:
-                            order_quantity = input("Enter the quantity to order: ")
+                            order_quantity = input("Enter the quantity to order: ") # Prompt the user to enter the quantity they want to order
                             if not order_quantity.isdigit() or int(order_quantity) < 1 or int(order_quantity) > int(inventory_data[int(product_id)][2]):
                                 print("Invalid quantity. Please try again.")
                             else:
@@ -112,21 +114,21 @@ def order_list():
                         product_name = inventory_data[int(product_id)][1]
                         product_quantity = inventory_data[int(product_id)][2]
                         product_price = inventory_data[int(product_id)][3]
-                        save_inventory(product_quantity, order_quantity, product_id)
-                        file.write(f"[{datetime.now()}] ORDERED: {product_name}, Quantity: {order_quantity}, Price: {round(float(product_price) * int(order_quantity), 2)}\n")
-                        print("\nOrder successfully added to orders.txt.")
+                        save_inventory(product_quantity, order_quantity, product_id) # Update the inventory after the order is placed
+                        file.write(f"[{datetime.now()}] ORDERED: {product_name}, Quantity: {order_quantity}, Price: {round(float(product_price) * int(order_quantity), 2)}\n") # Log the order to the orders.txt file
+                        print("\nOrder successfully added to orders.txt.") 
                         break
 
-def save_inventory(product_quantity, order_quantity, product_id):
-    with open("inventory.csv", 'r', newline='') as file:
+def save_inventory(product_quantity, order_quantity, product_id): # Update the inventory after an order is placed
+    with open("inventory.csv", 'r', newline='') as file: # Open the CSV file in read mode to get the current inventory data
         reader = csv.reader(file)
         inventory_data = list(reader)
-        updated_product_quantity = int(product_quantity) - int(order_quantity)
+        updated_product_quantity = int(product_quantity) - int(order_quantity) # Calculate the updated product quantity after the order is placed
         if updated_product_quantity == 0:
             inventory_data.pop(int(product_id))  # Remove the product from the inventory if quantity is zero
             for row in range(1, len(inventory_data)):  # Update the product IDs for the remaining products
                 inventory_data[row][0] = str(row)
-            with open("inventory.csv", 'w', newline='') as file:
+            with open("inventory.csv", 'w', newline='') as file: # Open the CSV file in write mode to update the inventory data
                 writer = csv.writer(file)
                 writer.writerows(inventory_data)
                 print("\nInventory updated successfully.")
@@ -138,7 +140,7 @@ def save_inventory(product_quantity, order_quantity, product_id):
             print("\nInventory updated successfully.")
 
 
-def validate_product_entry(product_name, product_quantity, product_price):
+def validate_product_entry(product_name, product_quantity, product_price): # Validate the product entry to ensure that all fields are filled and that the quantity and price are valid
     if not product_name or not product_quantity or not product_price: # Check if any of the fields are empty
         print("\nAll fields are required. Please provide valid inputs.")
         return False
@@ -164,13 +166,13 @@ def main():
 4. Exit the program\n
 Input your choice (1-4):""")
         match user_choice:
-            case "1": add_items()
-            case "2": update_items()
-            case "3": order_list()
+            case "1": add_items() # Call the add_items function to add a new product to the inventory 
+            case "2": update_items() # Call the update_items function to update an existing product in the inventory
+            case "3": order_list() # Call the order_list function to create an order list based on the current inventory
             case "4": 
-                print("\nExiting the program.")
+                print("\nExiting the program.") # Exit the program
                 break
-            case _: print("Invalid choice. Please try again.\n")
+            case _: print("Invalid choice. Please try again.\n") # Prompt the user to re-enter their choice if it is invalid
     
 main()
         
