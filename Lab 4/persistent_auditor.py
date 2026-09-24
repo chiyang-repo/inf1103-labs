@@ -41,16 +41,18 @@ def load_inventory():
         with open("inventory.csv", 'r') as file:
             reader = csv.reader(file)
             inventory_data = list(reader)
-            
+            inventory = ""
             if len(inventory_data) > 0:
-                print("Current Inventory: \n")
                 for row in range(1, len(inventory_data)):  # Skip the header row
-                    print(f"{inventory_data[row][0]}, {inventory_data[row][1]}, {inventory_data[row][2]}, {inventory_data[row][3]}")
+                    inventory += (f"""
+{inventory_data[row][0]}, {inventory_data[row][1]}, {inventory_data[row][2]}, {inventory_data[row][3]}""")
+                return inventory
             else:
-                print("Inventory is empty.")
+                return "Inventory is currently empty."
     except FileNotFoundError:
-        print("Inventory file not found. Starting with an empty inventory.")
         initialize_inventory_file()
+        return "Inventory file not found. Starting with an empty inventory."
+        
 
 
 def initialize_inventory_file():
@@ -79,23 +81,74 @@ def add_items():
             else:
                 print("Invalid product entry. Please try again.")
                 
-
+def update_items():
+    with open("inventory.csv", 'r', newline='') as file:
+        reader = csv.reader(file)
+        inventory_data = list(reader)
+        if len(inventory_data) <= 1:  # Check if there are any products in the inventory
+            print("No products available to update.")
+            return
+        print("\nCurrent Inventory:")
+        for row in range(1, len(inventory_data)):  # Skip the header row
+            print(f"{inventory_data[row][0]}, {inventory_data[row][1]}, {inventory_data[row][2]}, {inventory_data[row][3]}")
+    with open("inventory.csv", 'a', newline='') as file:
+        while True:
+            product_id = input("Enter the product ID to update: ")
+            if not product_id.isdigit() or int(product_id) < 1 or int(product_id) >= len(inventory_data):
+                print("Invalid product ID. Please try again.")
+                continue
+            product_name = input("Enter the new product name: ")
+            product_quantity = input("Enter the new product quantity: ")
+            product_price = input("Enter the new product price: ")
+            valid_product = validate_product_entry(product_name,product_quantity,product_price)
+            if valid_product is True:
+                # Update the product data in the CSV file
+                inventory_data[int(product_id)][1] = product_name
+                inventory_data[int(product_id)][2] = product_quantity
+                inventory_data[int(product_id)][3] = round(float(product_price), 2)
+                with open("inventory.csv", 'w', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerows(inventory_data)
+                print("Product updated successfully.")
+                break
+            else:
+                print("Invalid product entry. Please try again.")
 
 def validate_product_entry(product_name, product_quantity, product_price):
-    if not product_name or not product_quantity or not product_price:
+    if not product_name or not product_quantity or not product_price: # Check if any of the fields are empty
         print("\nAll fields are required. Please provide valid inputs.")
         return False
-    elif not product_quantity.isdigit() or int(product_quantity) < 0:
+    elif not product_quantity.isdigit() or int(product_quantity) < 0: # Check if product quantity is a non-negative integer or a string
         print("\nInvalid quantity. Please enter a non-negative integer.")
         return False
-    elif not re.match(r"^\d+(\.\d+)?$", product_price):
+    elif not re.match(r"^\d+(\.\d+)?$", product_price): # Check if product price is valid price format (non-negative number with optional decimal)
         print("\nInvalid price. Please enter a non-negative number.")
         return False
     return True
 
 # Main function
 def main():
-    add_items()
+    while True:
+        inventory = load_inventory()  # Load the current inventory from the CSV file
+        user_choice = input(f"""Welcome to the Persistent Auditor Program!
+        \nCurrent inventory is displayed below:{inventory}
+        \nThis program allows you to manage your inventory by adding new products and updating existing ones.
+        \nChoose which action you would like to do:
+1. Add a new product to the inventory
+2. Update an existing product in the inventory
+3. Create an order list based on the current inventory
+4. Exit the program\n
+Input your choice (1-4):""")
+        match user_choice:
+            case "1": print("0")
+            case "2": update_items()
+            case "3": print("2")
+            case "4": 
+                print("\nExiting the program.")
+                break
+            case _: print("Invalid choice. Please try again.\n")
+
+    
     # Inventory stocks upon initialization
     """ if not os.path.exists("inventory.csv"):
         initialize_inventory_file()
