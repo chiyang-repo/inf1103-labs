@@ -121,6 +121,34 @@ def transactional_history(action, product_name, product_quantity, product_price)
         file.write(f"[{datetime.now()}] {action}: {product_name}, Quantity: {product_quantity}, Price: {product_price}\n")
     return
 
+def order_list():
+    with open("inventory.csv", 'r', newline='') as file:
+        reader = csv.reader(file)
+        inventory_data = list(reader)
+        if len(inventory_data) <= 1:  # Check if there are any products in the inventory
+            print("No products available to create an order list.")
+            return
+        else:
+            print("\nCurrent Inventory:")
+            for row in range(1, len(inventory_data)):  # Skip the header row
+                print(f"{inventory_data[row][0]}, {inventory_data[row][1]}, {inventory_data[row][2]}, {inventory_data[row][3]}")
+            with open("orders.txt", 'w') as file:
+                while True:
+                    product_id = input("Enter the product ID to add to the order list: ")
+                    if not product_id.isdigit() or int(product_id) < 1 or int(product_id) >= len(inventory_data):
+                        print("Invalid product ID. Please try again.")
+                    else:
+                        while True:
+                            product_quantity = input("Enter the quantity to order: ")
+                            if not product_quantity.isdigit() or int(product_quantity) < 1 or int(product_quantity) > int(inventory_data[int(product_id)][2]):
+                                print("Invalid quantity. Please try again.")
+                            else:
+                                break
+                        product_name = inventory_data[int(product_id)][1]
+                        product_price = inventory_data[int(product_id)][3]
+                        file.write(f"[{datetime.now()}] ORDERED: {product_name}, Quantity: {product_quantity}, Price: {round(float(product_price) * int(product_quantity), 2)}\n")
+                        print("\nOrder successfully added to orders.txt.")
+                        break
 
 def validate_product_entry(product_name, product_quantity, product_price):
     if not product_name or not product_quantity or not product_price: # Check if any of the fields are empty
@@ -150,7 +178,7 @@ Input your choice (1-4):""")
         match user_choice:
             case "1": add_items()
             case "2": update_items()
-            case "3": print("2")
+            case "3": order_list()
             case "4": 
                 print("\nExiting the program.")
                 break
