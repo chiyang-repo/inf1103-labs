@@ -1,0 +1,116 @@
+import csv
+import os
+import re
+
+# Validate user input function
+def get_valid_input(user_input):
+    input = user_input
+    try:
+        if int(input) < 0: # Check if user input is a negative number
+            print("\nInvalid input. Please enter a non-negative number.")
+            return None
+        else:
+            return int(input) # Valid input, return the integer value
+    except ValueError: #catch the ValueError if user input is not a number
+        if input.lower() == 'quit': #exit the program if user types 'quit'
+            return 'quit' #Exit the loop and program
+        else: # Increment failed entry for any other string input
+            print("\nInvalid input. Please enter a valid number or type 'quit' to exit.")
+            return None
+        
+
+
+# Process delivery function
+def process_delivery(quantity, cost_per_unit):
+    return quantity * cost_per_unit
+
+# Calculate tax function
+def calculate_tax(delivery_cost):
+    tax_rate = 0.10
+    return delivery_cost * tax_rate
+
+# Generate report function
+def generate_report(inventory, delivery_cost, count):
+    print("\n--- Delivery Report ---")
+    print(f"Total Deliveries Processed: {inventory}")
+    print(f"Total Delivery Cost: {delivery_cost}")
+    print(f"Number of Failed/Rejected Entries: {count}")
+
+def load_inventory():
+    try:
+        with open("inventory.csv", 'r') as file:
+            reader = csv.reader(file)
+            inventory_data = list(reader)
+            
+            if len(inventory_data) > 0:
+                print("Current Inventory: \n")
+                for row in range(1, len(inventory_data)):  # Skip the header row
+                    print(f"{inventory_data[row][0]}, {inventory_data[row][1]}, {inventory_data[row][2]}, {inventory_data[row][3]}")
+            else:
+                #
+    except FileNotFoundError:
+        print("Inventory file not found. Starting with an empty inventory.")
+        initialize_inventory_file()
+
+
+def initialize_inventory_file():
+    with open("inventory.csv", 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(["ID", "PRODUCT_NAME", "QUANTITY", "PRICE"])  # Write the header row
+        print("Inventory file created.")
+
+def add_items():
+    with open("inventory.csv", 'a', newline='') as file:
+        while True:
+            product_name = input("Enter the product name: ")
+            product_quantity = input("Enter the product quantity: ")
+            product_price = input("Enter the product price: ")
+            valid_product = validate_product_entry(product_name,product_quantity,product_price)
+            if valid_product is True:
+                # Write the product data to the CSV file
+                writer = csv.writer(file)
+                writer.writerow([product_name, product_quantity, product_price])
+                print("Product added successfully.")
+            else:
+                print("Invalid product entry. Please try again.")
+
+def validate_product_entry(product_name, product_quantity, product_price):
+    if not product_name or not product_quantity or not product_price:
+        print("All fields are required. Please provide valid inputs.")
+        return False
+    elif not product_quantity.isdigit() or int(product_quantity) < 0:
+        print("Invalid quantity. Please enter a non-negative integer.")
+        return False
+    elif not re.match(r"^\d+\.\d{2}$", product_price):
+        print("Invalid price. Please enter a non-negative number.")
+        return False
+    return True
+
+# Main function
+def main():
+    # Inventory stocks upon initialization
+    if not os.path.exists("inventory.csv"):
+        initialize_inventory_file()
+
+    checked_inventory = load_inventory()
+    
+
+    """while True: 
+        print(f"\nCurrent inventory: {inventory}") # Display current inventory
+        user_input = input("\nEnter the number of items to add/update to inventory (or type 'quit' to quit): ") # Get user input
+        validated_user_input = get_valid_input(user_input) #run the user input through the validation function
+        if validated_user_input != 'quit' and validated_user_input is not None: # Check if user input is not 'quit' and not a failed entry
+            if validated_user_input > 0 : # Check if user input is not zero
+                inventory += validated_user_input # Increment inventory by user input
+                print(f"\nInventory updated. Current stock: {inventory}")
+            else:
+                print("\nNo changes made.") # User input is zero, no changes made to inventory
+        elif validated_user_input is None:
+            count += 1 # Increment failed entry
+        else:
+            delivery_cost = process_delivery(inventory, cost_per_unit) # Calculate delivery cost based on inventory and cost per unit
+            tax = calculate_tax(delivery_cost) # Calculate tax based on delivery cost
+            report = generate_report(inventory, delivery_cost, count) # Generate report with inventory, delivery cost, and failed entry count
+            break"""
+main()
+        
