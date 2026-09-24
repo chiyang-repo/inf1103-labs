@@ -1,6 +1,6 @@
 import csv
-import os
 import re
+from datetime import datetime
 
 # Validate user input function
 def get_valid_input(user_input):
@@ -77,6 +77,7 @@ def add_items():
                 writer = csv.writer(file)
                 writer.writerow([product_id, product_name, product_quantity, round(float(product_price), 2)])
                 print("Product added successfully.")
+                transactional_history("ADDED", product_name, product_quantity, product_price)
                 break
             else:
                 print("Invalid product entry. Please try again.")
@@ -109,10 +110,17 @@ def update_items():
                 with open("inventory.csv", 'w', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerows(inventory_data)
-                print("Product updated successfully.")
+                print("\nProduct updated successfully.")
+                transactional_history("UPDATED", product_name, product_quantity, product_price)
                 break
             else:
                 print("Invalid product entry. Please try again.")
+
+def transactional_history(action, product_name, product_quantity, product_price):
+    with open("inventory.txt", 'a') as file:
+        file.write(f"[{datetime.now()}] {action}: {product_name}, Quantity: {product_quantity}, Price: {product_price}\n")
+    return
+
 
 def validate_product_entry(product_name, product_quantity, product_price):
     if not product_name or not product_quantity or not product_price: # Check if any of the fields are empty
@@ -130,7 +138,7 @@ def validate_product_entry(product_name, product_quantity, product_price):
 def main():
     while True:
         inventory = load_inventory()  # Load the current inventory from the CSV file
-        user_choice = input(f"""Welcome to the Persistent Auditor Program!
+        user_choice = input(f"""\nWelcome to the Persistent Auditor Program!
         \nCurrent inventory is displayed below:{inventory}
         \nThis program allows you to manage your inventory by adding new products and updating existing ones.
         \nChoose which action you would like to do:
@@ -140,37 +148,13 @@ def main():
 4. Exit the program\n
 Input your choice (1-4):""")
         match user_choice:
-            case "1": print("0")
+            case "1": add_items()
             case "2": update_items()
             case "3": print("2")
             case "4": 
                 print("\nExiting the program.")
                 break
             case _: print("Invalid choice. Please try again.\n")
-
     
-    # Inventory stocks upon initialization
-    """ if not os.path.exists("inventory.csv"):
-        initialize_inventory_file()
-        checked_inventory = load_inventory()"""
-    
-
-    """while True: 
-        print(f"\nCurrent inventory: {inventory}") # Display current inventory
-        user_input = input("\nEnter the number of items to add/update to inventory (or type 'quit' to quit): ") # Get user input
-        validated_user_input = get_valid_input(user_input) #run the user input through the validation function
-        if validated_user_input != 'quit' and validated_user_input is not None: # Check if user input is not 'quit' and not a failed entry
-            if validated_user_input > 0 : # Check if user input is not zero
-                inventory += validated_user_input # Increment inventory by user input
-                print(f"\nInventory updated. Current stock: {inventory}")
-            else:
-                print("\nNo changes made.") # User input is zero, no changes made to inventory
-        elif validated_user_input is None:
-            count += 1 # Increment failed entry
-        else:
-            delivery_cost = process_delivery(inventory, cost_per_unit) # Calculate delivery cost based on inventory and cost per unit
-            tax = calculate_tax(delivery_cost) # Calculate tax based on delivery cost
-            report = generate_report(inventory, delivery_cost, count) # Generate report with inventory, delivery cost, and failed entry count
-            break"""
 main()
         
