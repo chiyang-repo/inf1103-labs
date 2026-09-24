@@ -2,40 +2,6 @@ import csv
 import re
 from datetime import datetime
 
-# Validate user input function
-def get_valid_input(user_input):
-    input = user_input
-    try:
-        if int(input) < 0: # Check if user input is a negative number
-            print("\nInvalid input. Please enter a non-negative number.")
-            return None
-        else:
-            return int(input) # Valid input, return the integer value
-    except ValueError: #catch the ValueError if user input is not a number
-        if input.lower() == 'quit': #exit the program if user types 'quit'
-            return 'quit' #Exit the loop and program
-        else: # Increment failed entry for any other string input
-            print("\nInvalid input. Please enter a valid number or type 'quit' to exit.")
-            return None
-        
-
-
-# Process delivery function
-def process_delivery(quantity, cost_per_unit):
-    return quantity * cost_per_unit
-
-# Calculate tax function
-def calculate_tax(delivery_cost):
-    tax_rate = 0.10
-    return delivery_cost * tax_rate
-
-# Generate report function
-def generate_report(inventory, delivery_cost, count):
-    print("\n--- Delivery Report ---")
-    print(f"Total Deliveries Processed: {inventory}")
-    print(f"Total Delivery Cost: {delivery_cost}")
-    print(f"Number of Failed/Rejected Entries: {count}")
-
 def load_inventory():
     try:
         with open("inventory.csv", 'r') as file:
@@ -92,7 +58,6 @@ def update_items():
         print("\nCurrent Inventory:")
         for row in range(1, len(inventory_data)):  # Skip the header row
             print(f"{inventory_data[row][0]}, {inventory_data[row][1]}, {inventory_data[row][2]}, {inventory_data[row][3]}")
-    with open("inventory.csv", 'a', newline='') as file:
         while True:
             product_id = input("Enter the product ID to update: ")
             if not product_id.isdigit() or int(product_id) < 1 or int(product_id) >= len(inventory_data):
@@ -139,16 +104,39 @@ def order_list():
                         print("Invalid product ID. Please try again.")
                     else:
                         while True:
-                            product_quantity = input("Enter the quantity to order: ")
-                            if not product_quantity.isdigit() or int(product_quantity) < 1 or int(product_quantity) > int(inventory_data[int(product_id)][2]):
+                            order_quantity = input("Enter the quantity to order: ")
+                            if not order_quantity.isdigit() or int(order_quantity) < 1 or int(order_quantity) > int(inventory_data[int(product_id)][2]):
                                 print("Invalid quantity. Please try again.")
                             else:
                                 break
                         product_name = inventory_data[int(product_id)][1]
+                        product_quantity = inventory_data[int(product_id)][2]
                         product_price = inventory_data[int(product_id)][3]
-                        file.write(f"[{datetime.now()}] ORDERED: {product_name}, Quantity: {product_quantity}, Price: {round(float(product_price) * int(product_quantity), 2)}\n")
+                        save_inventory(product_quantity, order_quantity, product_id)
+                        file.write(f"[{datetime.now()}] ORDERED: {product_name}, Quantity: {order_quantity}, Price: {round(float(product_price) * int(order_quantity), 2)}\n")
                         print("\nOrder successfully added to orders.txt.")
                         break
+
+def save_inventory(product_quantity, order_quantity, product_id):
+    with open("inventory.csv", 'r', newline='') as file:
+        reader = csv.reader(file)
+        inventory_data = list(reader)
+        updated_product_quantity = int(product_quantity) - int(order_quantity)
+        if updated_product_quantity == 0:
+            inventory_data.pop(int(product_id))  # Remove the product from the inventory if quantity is zero
+            for row in range(1, len(inventory_data)):  # Update the product IDs for the remaining products
+                inventory_data[row][0] = str(row)
+            with open("inventory.csv", 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerows(inventory_data)
+                print("\nInventory updated successfully.")
+        else:
+            inventory_data[int(product_id)][2] = str(updated_product_quantity)  # Update the product quantity in the inventory
+            with open("inventory.csv", 'w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerows(inventory_data)
+            print("\nInventory updated successfully.")
+
 
 def validate_product_entry(product_name, product_quantity, product_price):
     if not product_name or not product_quantity or not product_price: # Check if any of the fields are empty
