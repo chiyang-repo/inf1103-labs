@@ -90,26 +90,6 @@ def transactional_history(action, product_name, product_quantity, product_price)
     return
 
 
-def save_inventory(product_quantity, order_quantity, product_id): # Update the inventory after an order is placed
-    with open("inventory.csv", 'r', newline='') as file: # Open the CSV file in read mode to get the current inventory data
-        reader = csv.reader(file)
-        inventory_data = list(reader)
-        updated_product_quantity = int(product_quantity) - int(order_quantity) # Calculate the updated product quantity after the order is placed
-        if updated_product_quantity == 0:
-            inventory_data.pop(int(product_id))  # Remove the product from the inventory if quantity is zero
-            for row in range(1, len(inventory_data)):  # Update the product IDs for the remaining products
-                inventory_data[row][0] = str(row)
-            with open("inventory.csv", 'w', newline='') as file: # Open the CSV file in write mode to update the inventory data
-                writer = csv.writer(file)
-                writer.writerows(inventory_data)
-                print("\nInventory updated successfully.")
-        else:
-            inventory_data[int(product_id)][2] = str(updated_product_quantity)  # Update the product quantity in the inventory
-            with open("inventory.csv", 'w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerows(inventory_data)
-            print("\nInventory updated successfully.")
-
 
 def validate_product_entry(product_name, product_quantity, product_price): # Validate the product entry to ensure that all fields are filled and that the quantity and price are valid
     if not product_name or not product_quantity or not product_price: # Check if any of the fields are empty
