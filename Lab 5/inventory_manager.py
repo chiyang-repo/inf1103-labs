@@ -43,7 +43,7 @@ def add_items(): # Add new products to the inventory
             if valid_product is True:
                 # Write the product data to the JSON file
                 new_product = {
-                    "product_id": product_id,
+                    "product_id": int(product_id) + 1,
                     "product_name": product_name,
                     "quantity": int(product_quantity),
                     "price": round(float(product_price), 2)
@@ -56,7 +56,7 @@ def add_items(): # Add new products to the inventory
             else:
                 print("Invalid product entry. Please try again.") # Prompt the user to re-enter the product details if the entry is invalid
                 
-def update_items(): # Update existing products in the inventory
+def update_stock(): # Update the stock quantity of existing products in the inventory
     with open("inventory.json", 'r') as file: # Open the JSON file in read mode to get the current inventory data
         inventory_data = json.load(file)
         if len(inventory_data["products"]) == 0:  # Check if there are any products in the inventory
@@ -64,28 +64,25 @@ def update_items(): # Update existing products in the inventory
             return
         print("\nCurrent Inventory:")
         for product in inventory_data["products"]:
-            print(f"{product['product_id']}, {product['product_name']}, {product['quantity']}, {product['price']}")
+            print(f"{product['product_id']} | {product['product_name']} | {product['quantity']} | {product['price']}")
         while True:
             product_id = input("Enter the product ID to update: ") # Prompt the user to enter the product ID of the product they want to update
             if not product_id.isdigit() or int(product_id) < 1 or int(product_id) > len(inventory_data["products"]):
                 print("Invalid product ID. Please try again.")
                 continue
-            product_name = input("Enter the new product name: ") # Prompt the user to enter the new product name
-            product_quantity = input("Enter the new product quantity: ") # Prompt the user to enter the new product quantity
-            product_price = input("Enter the new product price: ") # Prompt the user to enter the new product price
-            valid_product = validate_product_entry(product_name,product_quantity,product_price) # Validate the product entry
-            if valid_product is True:
-                # Update the product data in the JSON file
-                inventory_data["products"][int(product_id) - 1]["product_name"] = product_name
-                inventory_data["products"][int(product_id) - 1]["quantity"] = int(product_quantity)
-                inventory_data["products"][int(product_id) - 1]["price"] = round(float(product_price), 2)
-                with open("inventory.json", 'w') as file: # Open the JSON file in write mode to update the product data
-                    json.dump(inventory_data, file)
-                print("\nProduct updated successfully.")
-                transactional_history("UPDATED", product_name, product_quantity, product_price) # Log the product update to the transactional history
-                break
             else:
-                print("Invalid product entry. Please try again.")
+                product_quantity = input("Enter the new product quantity: ") # Prompt the user to enter the new product quantity
+                if not product_quantity.isdigit() or int(product_quantity) < 0: # Check if the new product quantity is a non-negative integer
+                    print("Invalid stock entry. Please try again.")
+                    continue
+                # Update the product data in the JSON file
+                else:
+                    inventory_data["products"][int(product_id) - 1]["quantity"] = int(product_quantity)
+                    with open("inventory.json", 'w') as file: # Open the JSON file in write mode to update the product data
+                        json.dump(inventory_data, file)
+                        print("\nStock updated successfully.")
+                        transactional_history("UPDATED", inventory_data["products"][int(product_id) - 1]["product_name"], product_quantity, inventory_data["products"][int(product_id) - 1]["price"]) # Log the product update to the transactional history
+                        break
 
 def transactional_history(action, product_name, product_quantity, product_price): # Log the product addition or update to the transactional history file
     with open("inventory.txt", 'a') as file:
@@ -161,24 +158,25 @@ def main():
     while True:
         inventory_exists = str(check_inventory_file_exists()) # Check if the inventory JSON file exists, and create it if it does not
         if inventory_exists == "True":
-            print("\ninventory.json found. \ninventory loaded successfully.")
+            inventory_message = "\ninventory.json found. \ninventory loaded successfully."
         else:
-            print("\ninventory.json not found. A new inventory file has been created.")
+            inventory_message = "\ninventory.json not found. A new inventory file has been created."
         user_choice = input(f"""
 ==============================================
 Inventory Management System
 ==============================================
+{inventory_message}
 \n 
 1. Display current inventory
-2. Add a new product to the inventory
-3. Update an existing product in the inventory
+2. Add product 
+3. Update stock
 4. Create an order list based on the current inventory
 5. Exit the program\n
 Input your choice (1-5):""")
         match user_choice:
             case "1": load_inventory() # Call the load_inventory function to display the current inventory
             case "2": add_items() # Call the add_items function to add a new product to the inventory
-            case "3": update_items() # Call the update_items function to update an existing product in the inventory
+            case "3": update_stock() # Call the update_items function to update an existing product in the inventory
             case "4": order_list() # Call the order_list function to create an order list based on the current inventory
             case "5":
                 print("\nExiting the program.") # Exit the program
