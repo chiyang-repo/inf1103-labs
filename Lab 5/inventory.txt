@@ -13,3 +13,5 @@
 [2026-10-02 15:10:45.636176] ADDED: Product E, Quantity: 200, Price: 2.30
 [2026-10-02 15:11:09.094550] ADDED: product F, Quantity: 400, Price: 3.0
 [2026-10-02 15:19:59.524498] UPDATED: productC, Quantity: 30, Price: 4.0
+[2026-10-02 11:54:16.397931] ADDED: Product Z, Quantity: 50, Price: 4.90
+[2026-10-02 11:55:17.884848] UPDATED: Product E, Quantity: 300, Price: 2.3
