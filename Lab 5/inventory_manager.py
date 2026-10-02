@@ -111,7 +111,7 @@ def search_product(): # Search for a product in the inventory by name
             return
         product_name = input("Enter the product name to search: ") # Prompt the user to enter the product name they want to search for
         found_products = [product for product in inventory_data["products"] if product_name.lower() in product["product_name"].lower()] # Search for products that match the entered name (case-insensitive)
-        if found_products:
+        if len(found_products) > 0:  # Check if any products were found
             print("\nSearch Results:")
             for product in found_products:
                 print(f"ID: {product['product_id']} \nName: {product['product_name']} \nPrice: {product['price']} \nQuantity: {product['quantity']} \n")
