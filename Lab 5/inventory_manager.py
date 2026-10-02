@@ -89,36 +89,6 @@ def transactional_history(action, product_name, product_quantity, product_price)
         file.write(f"[{datetime.now()}] {action}: {product_name}, Quantity: {product_quantity}, Price: {product_price}\n")
     return
 
-def order_list(): # Create an order list based on the current inventory
-    with open("inventory.csv", 'r', newline='') as file: # Open the CSV file in read mode to get the current inventory data
-        reader = csv.reader(file)
-        inventory_data = list(reader)
-        if len(inventory_data) <= 1:  # Check if there are any products in the inventory
-            print("No products available to create an order list.")
-            return
-        else:
-            print("\nCurrent Inventory:")
-            for row in range(1, len(inventory_data)):  # Skip the header row
-                print(f"{inventory_data[row][0]}, {inventory_data[row][1]}, {inventory_data[row][2]}, {inventory_data[row][3]}")
-            with open("orders.txt", 'w') as file:
-                while True:
-                    product_id = input("Enter the product ID to add to the order list: ") # Prompt the user to enter the product ID of the product they want to add to the order list
-                    if not product_id.isdigit() or int(product_id) < 1 or int(product_id) >= len(inventory_data):
-                        print("Invalid product ID. Please try again.")
-                    else:
-                        while True:
-                            order_quantity = input("Enter the quantity to order: ") # Prompt the user to enter the quantity they want to order
-                            if not order_quantity.isdigit() or int(order_quantity) < 1 or int(order_quantity) > int(inventory_data[int(product_id)][2]):
-                                print("Invalid quantity. Please try again.")
-                            else:
-                                break
-                        product_name = inventory_data[int(product_id)][1]
-                        product_quantity = inventory_data[int(product_id)][2]
-                        product_price = inventory_data[int(product_id)][3]
-                        save_inventory(product_quantity, order_quantity, product_id) # Update the inventory after the order is placed
-                        file.write(f"[{datetime.now()}] ORDERED: {product_name}, Quantity: {order_quantity}, Price: {round(float(product_price) * int(order_quantity), 2)}\n") # Log the order to the orders.txt file
-                        print("\nOrder successfully added to orders.txt.") 
-                        break
 
 def save_inventory(product_quantity, order_quantity, product_id): # Update the inventory after an order is placed
     with open("inventory.csv", 'r', newline='') as file: # Open the CSV file in read mode to get the current inventory data
@@ -153,6 +123,21 @@ def validate_product_entry(product_name, product_quantity, product_price): # Val
         return False
     return True
 
+def search_product(): # Search for a product in the inventory by name
+    with open("inventory.json", 'r') as file: # Open the JSON file in read mode to get the current inventory data
+        inventory_data = json.load(file)
+        if len(inventory_data["products"]) == 0:  # Check if there are any products in the inventory
+            print("No products available to search.")
+            return
+        product_name = input("Enter the product name to search: ") # Prompt the user to enter the product name they want to search for
+        found_products = [product for product in inventory_data["products"] if product_name.lower() in product["product_name"].lower()] # Search for products that match the entered name (case-insensitive)
+        if found_products:
+            print("\nSearch Results:")
+            for product in found_products:
+                print(f"ID: {product['product_id']} \nName: {product['product_name']} \nPrice: {product['price']} \nQuantity: {product['quantity']} \n")
+        else:
+            print("\nNo products found matching the search criteria.")
+
 # Main function
 def main():
     while True:
@@ -170,14 +155,14 @@ Inventory Management System
 1. Display current inventory
 2. Add product 
 3. Update stock
-4. Create an order list based on the current inventory
+4. Search product
 5. Exit the program\n
 Input your choice (1-5):""")
         match user_choice:
             case "1": load_inventory() # Call the load_inventory function to display the current inventory
             case "2": add_items() # Call the add_items function to add a new product to the inventory
             case "3": update_stock() # Call the update_items function to update an existing product in the inventory
-            case "4": order_list() # Call the order_list function to create an order list based on the current inventory
+            case "4": search_product() # Call the search_product function to search for a product in the inventory
             case "5":
                 print("\nExiting the program.") # Exit the program
                 break
