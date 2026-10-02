@@ -9,47 +9,47 @@ def check_inventory_file_exists(): # Check if the inventory JSON file exists, an
         with open("inventory.json", 'r') as file: # Open the JSON file in read mode
             return True
     except FileNotFoundError: # If the inventory file does not exist, create a new one and return False
-        return False
+        with open("inventory.json", 'w') as file: # Open the JSON file in write mode
+            json.dump({"products": []}, file) # Create a new inventory file with an empty list of products
+            return False
 
 # Function to load inventory from JSON file
 def load_inventory():
-    try:
-        with open("inventory.json", 'r') as file:    # Open the JSON file in read mode
-            inventory_data = json.load(file)
-            inventory = ""
-            if len(inventory_data) > 0:
-                for row in range(1, len(inventory_data)):  # Skip the header row
-                    inventory += (f"""
-{inventory_data[row][0]}, {inventory_data[row][1]}, {inventory_data[row][2]}, {inventory_data[row][3]}""")
-                return inventory
-            else:
-                return "Inventory is currently empty."
-    except FileNotFoundError: # If the inventory file does not exist, create a new one and return an empty inventory message
-        initialize_inventory_file()
-        return "Inventory file not found. Starting with an empty inventory."
-        
-
-def initialize_inventory_file(): # Create a new inventory CSV file with a header row
-    with open("inventory.csv", 'w', newline='') as file: # Open the CSV file in write mode
-        writer = csv.writer(file)
-        writer.writerow(["ID", "PRODUCT_NAME", "QUANTITY", "PRICE"])  # Write the header row
-        print("Inventory file created.")
+    with open("inventory.json", 'r') as file: # Open the JSON file in read mode
+        inventory_data = json.load(file) # Load the inventory data from the JSON file
+        if len(inventory_data["products"]) == 0:  # Check if there are any products in the inventory
+            print("\nNo products available in the inventory.")
+            return
+        else:
+            print("\nCurrent Inventory: \n---------------------------------------------------------------")
+            for product in inventory_data["products"]:  # Iterate through the inventory data and print each product
+                product_id =  product["product_id"]
+                product_name = product["product_name"]
+                product_quantity = product["quantity"]
+                product_price = product["price"]
+                print(f"ID: {product_id} | Name: {product_name} | Price: {product_price} | Quantity: {product_quantity}")
+            print("---------------------------------------------------------------")
 
 def add_items(): # Add new products to the inventory
-    with open("inventory.csv", 'r', newline='') as file: # Open the CSV file in read mode to get the current product ID
-        reader = csv.reader(file)
-        inventory_data = list(reader)
-        product_id = len(inventory_data)  # Get the next product ID based on the number of existing rows
-    with open("inventory.csv", 'a', newline='') as file: # Open the CSV file in append mode to add new products
+    with open("inventory.json", 'r') as file: # Open the JSON file in read mode to get the current product ID
+        inventory_data = json.load(file)
+        product_id = len(inventory_data["products"])  # Get the next product ID based on the number of existing products
+    with open("inventory.json", 'w') as file: # Open the JSON file in write mode to add new products
         while True:
             product_name = input("Enter the product name: ") # Prompt the user to enter the product name
             product_quantity = input("Enter the product quantity: ") # Prompt the user to enter the product quantity
             product_price = input("Enter the product price: ") # Prompt the user to enter the product price
             valid_product = validate_product_entry(product_name,product_quantity,product_price) # Validate the product entry
             if valid_product is True:
-                # Write the product data to the CSV file
-                writer = csv.writer(file)
-                writer.writerow([product_id, product_name, product_quantity, round(float(product_price), 2)]) # Write the product data to the CSV file
+                # Write the product data to the JSON file
+                new_product = {
+                    "product_id": product_id,
+                    "product_name": product_name,
+                    "quantity": int(product_quantity),
+                    "price": round(float(product_price), 2)
+                }
+                inventory_data["products"].append(new_product)
+                json.dump(inventory_data, file)
                 print("Product added successfully.")
                 transactional_history("ADDED", product_name, product_quantity, product_price) # Log the product addition to the transactional history
                 break
@@ -57,18 +57,17 @@ def add_items(): # Add new products to the inventory
                 print("Invalid product entry. Please try again.") # Prompt the user to re-enter the product details if the entry is invalid
                 
 def update_items(): # Update existing products in the inventory
-    with open("inventory.csv", 'r', newline='') as file: # Open the CSV file in read mode to get the current inventory data
-        reader = csv.reader(file)
-        inventory_data = list(reader)
-        if len(inventory_data) <= 1:  # Check if there are any products in the inventory
+    with open("inventory.json", 'r') as file: # Open the JSON file in read mode to get the current inventory data
+        inventory_data = json.load(file)
+        if len(inventory_data["products"]) == 0:  # Check if there are any products in the inventory
             print("No products available to update.")
             return
         print("\nCurrent Inventory:")
-        for row in range(1, len(inventory_data)):  # Skip the header row
-            print(f"{inventory_data[row][0]}, {inventory_data[row][1]}, {inventory_data[row][2]}, {inventory_data[row][3]}")
+        for product in inventory_data["products"]:
+            print(f"{product['product_id']}, {product['product_name']}, {product['quantity']}, {product['price']}")
         while True:
             product_id = input("Enter the product ID to update: ") # Prompt the user to enter the product ID of the product they want to update
-            if not product_id.isdigit() or int(product_id) < 1 or int(product_id) >= len(inventory_data):
+            if not product_id.isdigit() or int(product_id) < 1 or int(product_id) > len(inventory_data["products"]):
                 print("Invalid product ID. Please try again.")
                 continue
             product_name = input("Enter the new product name: ") # Prompt the user to enter the new product name
@@ -76,13 +75,12 @@ def update_items(): # Update existing products in the inventory
             product_price = input("Enter the new product price: ") # Prompt the user to enter the new product price
             valid_product = validate_product_entry(product_name,product_quantity,product_price) # Validate the product entry
             if valid_product is True:
-                # Update the product data in the CSV file
-                inventory_data[int(product_id)][1] = product_name
-                inventory_data[int(product_id)][2] = product_quantity
-                inventory_data[int(product_id)][3] = round(float(product_price), 2)
-                with open("inventory.csv", 'w', newline='') as file: # Open the CSV file in write mode to update the product data
-                    writer = csv.writer(file)
-                    writer.writerows(inventory_data)
+                # Update the product data in the JSON file
+                inventory_data["products"][int(product_id) - 1]["product_name"] = product_name
+                inventory_data["products"][int(product_id) - 1]["quantity"] = int(product_quantity)
+                inventory_data["products"][int(product_id) - 1]["price"] = round(float(product_price), 2)
+                with open("inventory.json", 'w') as file: # Open the JSON file in write mode to update the product data
+                    json.dump(inventory_data, file)
                 print("\nProduct updated successfully.")
                 transactional_history("UPDATED", product_name, product_quantity, product_price) # Log the product update to the transactional history
                 break
@@ -171,16 +169,18 @@ def main():
 Inventory Management System
 ==============================================
 \n 
-1. Add a new product to the inventory
-2. Update an existing product in the inventory
-3. Create an order list based on the current inventory
-4. Exit the program\n
-Input your choice (1-4):""")
+1. Display current inventory
+2. Add a new product to the inventory
+3. Update an existing product in the inventory
+4. Create an order list based on the current inventory
+5. Exit the program\n
+Input your choice (1-5):""")
         match user_choice:
-            case "1": add_items() # Call the add_items function to add a new product to the inventory 
-            case "2": update_items() # Call the update_items function to update an existing product in the inventory
-            case "3": order_list() # Call the order_list function to create an order list based on the current inventory
-            case "4": 
+            case "1": load_inventory() # Call the load_inventory function to display the current inventory
+            case "2": add_items() # Call the add_items function to add a new product to the inventory
+            case "3": update_items() # Call the update_items function to update an existing product in the inventory
+            case "4": order_list() # Call the order_list function to create an order list based on the current inventory
+            case "5":
                 print("\nExiting the program.") # Exit the program
                 break
             case _: print("Invalid choice. Please try again.\n") # Prompt the user to re-enter their choice if it is invalid
