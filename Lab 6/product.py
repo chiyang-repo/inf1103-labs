@@ -1,30 +1,29 @@
 class Product:
     def __init__(self, product_id, name, price, stock):
-        self.product_id = product_id
-        self.name = name
-        self.price = price
-        self.stock = stock
+        self.__product_id = product_id
+        self.__name = name
+        self.__price = price
+        self.__stock = stock
 
     def get_product_id(self):
-        return self.product_id
+        return self.__product_id
 
     def get_name(self):
-        return self.name
+        return self.__name
 
     def get_price(self):
-        return self.price
+        return self.__price
 
     def get_stock(self):
-        return self.stock
+        return self.__stock
 
     def update_stock(self, new_stock):
         if not isinstance(new_stock, int) or new_stock < 0:
             raise ValueError("Stock must be a non-negative integer.")
         else:
-            self.stock = new_stock
+            self.__stock = new_stock
 
     def display_product(self):
-        return f"Product ID: {self.product_id}, Name: {self.name}, Price: ${self.price:.2f}, Stock: {self.stock}"
+        print(f"Product ID: {self.__product_id}, Name: {self.__name}, Price: ${self.__price:.2f}, Stock: {self.__stock}")
 
-product1 = Product("P001", "Product 1", 10.99, 100)
-print(product1.display_product())
+
