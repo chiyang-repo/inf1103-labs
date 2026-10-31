@@ -21,7 +21,7 @@ class Inventory:
             return
         print("\nCurrent Inventory: \n---------------------------------------------------------------")
         for product in self.__products:
-            product.display_product() # Each Product displays its own information
+            product.display_information() # Each Product displays its own information
         print("---------------------------------------------------------------")
 
     def get_products(self): # Return a copy of the product list, so outside code cannot change the inventory's own list

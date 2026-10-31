@@ -93,7 +93,7 @@ def search_product(inventory): # Ask the user for a name and display the matchin
     if len(found_products) > 0: # Check if any products were found
         print("\nSearch Results:")
         for product in found_products:
-            product.display_product()
+            product.display_information()
     else:
         print("\nNo products found matching the search criteria.")
 

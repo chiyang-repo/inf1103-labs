@@ -23,7 +23,7 @@ class Product:
         else:
             self.__stock = new_stock
 
-    def display_product(self):
+    def display_information(self):
         print(f"Product ID: {self.__product_id}, Name: {self.__name}, Price: ${self.__price:.2f}, Stock: {self.__stock}")
 
 
