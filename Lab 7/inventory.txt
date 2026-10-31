@@ -22,3 +22,5 @@
 [2026-10-24 09:18:23.001947] UPDATED: Product 1, Quantity: 240, Price: 2.5
 [2026-10-31 16:42:51.068306] UPDATED: Amplifier, Quantity: 0, Price: 450.0
 [2026-10-31 16:43:02.986427] UPDATED: Amplifier, Quantity: 100, Price: 450.0
+[2026-10-31 16:59:01.957453] ADDED (digital): software 2, Quantity: 100, Price: 2.3
+[2026-10-31 17:01:06.501548] ADDED (physical): drum kit, Quantity: 200, Price: 67

@@ -31,6 +31,22 @@
             "price": 89.99,
             "type": "digital",
             "download_size": 1200.0
+        },
+        {
+            "product_id": 5,
+            "product_name": "software 2",
+            "quantity": 100,
+            "price": 2.3,
+            "type": "digital",
+            "download_size": 5000.0
+        },
+        {
+            "product_id": 6,
+            "product_name": "drum kit",
+            "quantity": 200,
+            "price": 67.0,
+            "type": "physical",
+            "weight": 10.0
         }
     ]
 }

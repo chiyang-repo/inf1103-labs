@@ -42,21 +42,46 @@ def validate_product_entry(product_name, product_quantity, product_price): # Val
         return False
     return True
 
+def choose_product_type(): # Ask the user whether the new product is physical or digital, and return "physical" or "digital"
+    while True:
+        product_type = input("Is this a (1) Physical or (2) Digital product? Enter 1 or 2: ")
+        if product_type == "1":
+            return "physical"
+        elif product_type == "2":
+            return "digital"
+        print("Invalid choice. Please enter 1 or 2.") # Keep asking until a valid choice is entered
+
+def ask_positive_number(prompt): # Keep asking until the user enters a number greater than 0 (used for weight and download size)
+    while True:
+        value = input(prompt)
+        if re.match(r"^\d+(\.\d+)?$", value) and float(value) > 0: # Same number format as the price check, but 0 is not allowed
+            return float(value)
+        print("Invalid value. Please enter a number greater than 0.")
+
 def add_product(inventory): # Ask the user for a new product's details and add it to the inventory
+    product_type = choose_product_type() # Physical or digital decides which extra detail to ask for and which class to create
     while True:
         product_name = input("Enter the product name: ") # Prompt the user to enter the product name
         product_quantity = input("Enter the product quantity: ") # Prompt the user to enter the product quantity
         product_price = input("Enter the product price: ") # Prompt the user to enter the product price
-        if validate_product_entry(product_name, product_quantity, product_price) is True: # Validate the product entry
-            product_id = len(inventory.get_products()) + 1 # Get the next product ID based on the number of existing products
-            product = Product(product_id, product_name, round(float(product_price), 2), int(product_quantity)) # Create the new Product object
-            inventory.add_product(product) # Store it in the inventory (in memory, saved later)
-            print("Product added successfully.")
-            transactional_history("ADDED", product_name, product_quantity, product_price) # Log the product addition to the transactional history
+        if validate_product_entry(product_name, product_quantity, product_price) is True: # Validate the common product details
             break
-        else:
-            print("Invalid product entry. Please try again.") # Prompt the user to re-enter the product details if the entry is invalid
+        print("Invalid product entry. Please try again.") # Prompt the user to re-enter the product details if the entry is invalid
 
+    product_id = len(inventory.get_products()) + 1 # Get the next product ID based on the number of existing products
+    price = round(float(product_price), 2)
+    quantity = int(product_quantity)
+    if product_type == "physical":
+        weight = ask_positive_number("Enter the product weight (kg): ") # Extra detail only physical products have
+        product = PhysicalProduct(product_id, product_name, price, quantity, weight)
+    else:
+        download_size = ask_positive_number("Enter the download size (MB): ") # Extra detail only digital products have
+        product = DigitalProduct(product_id, product_name, price, quantity, download_size)
+
+    inventory.add_product(product) # Store it in the inventory (in memory, saved later)
+    print("Product added successfully.")
+    transactional_history(f"ADDED ({product_type})", product_name, product_quantity, product_price) # Log the addition, including its type
+    
 def update_stock(inventory): # Ask the user which product to update and its new stock quantity
     products = inventory.get_products() # Get a copy of the product list to check for valid IDs
     if len(products) == 0: # Check if there are any products in the inventory
