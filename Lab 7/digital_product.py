@@ -11,3 +11,6 @@ class DigitalProduct(Product):
     def display_information(self):
         super().display_information()  # Display common product information
         print(f"Download Size: {self.__download_size}MB")  # Child adds the information unique to digital products
+
+    def get_fulfilment_info(self): # Implements Product's abstract method
+        return "This product is delivered digitally via a download link."

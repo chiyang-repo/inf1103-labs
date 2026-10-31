@@ -11,3 +11,6 @@ class PhysicalProduct(Product):
     def display_information(self):
         super().display_information()  # Display common product information
         print(f"Weight: {self.__weight}kg")  # Child adds the information unique to physical products  
+
+    def get_fulfilment_info(self): # Implements Product's abstract method
+        return "This product requires physical shipping to the customer."
