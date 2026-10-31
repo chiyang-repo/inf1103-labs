@@ -12,5 +12,12 @@ class DigitalProduct(Product):
         super().display_information()  # Display common product information
         print(f"Download Size: {self.__download_size}MB")  # Child adds the information unique to digital products
 
+    def to_dict(self): # Override: reuse Product's dictionary, then add the type and weight
+        product_data = super().to_dict() # Parent builds the common fields
+        product_data["type"] = "digital" # Type identifier used when loading the JSON back
+        product_data["download_size"] = self.__download_size
+        return product_data
+
     def get_fulfilment_info(self): # Implements Product's abstract method
         return "This product is delivered digitally via a download link."
+    

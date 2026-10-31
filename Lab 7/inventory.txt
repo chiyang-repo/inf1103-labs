@@ -20,3 +20,5 @@
 [2026-10-24 17:05:06.326473] UPDATED: object5, Quantity: 100, Price: 5.0
 [2026-10-24 09:17:20.916735] ADDED: Product 2, Quantity: 230, Price: 4.0
 [2026-10-24 09:18:23.001947] UPDATED: Product 1, Quantity: 240, Price: 2.5
+[2026-10-31 16:42:51.068306] UPDATED: Amplifier, Quantity: 0, Price: 450.0
+[2026-10-31 16:43:02.986427] UPDATED: Amplifier, Quantity: 100, Price: 450.0

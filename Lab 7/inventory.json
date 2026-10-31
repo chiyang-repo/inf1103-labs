@@ -2,63 +2,35 @@
     "products": [
         {
             "product_id": 1,
-            "product_name": "Product A",
-            "quantity": 10,
-            "price": 5.99
+            "product_name": "Guitar",
+            "quantity": 5,
+            "price": 299.9,
+            "type": "physical",
+            "weight": 3.5
         },
         {
             "product_id": 2,
-            "product_name": "Product B",
-            "quantity": 20,
-            "price": 9.99
+            "product_name": "Windows 11",
+            "quantity": 50,
+            "price": 199.0,
+            "type": "digital",
+            "download_size": 5400.0
         },
         {
             "product_id": 3,
-            "product_name": "object5",
+            "product_name": "Amplifier",
             "quantity": 100,
-            "price": 5.0
+            "price": 450.0,
+            "type": "physical",
+            "weight": 20.0
         },
         {
             "product_id": 4,
-            "product_name": "productC",
-            "quantity": 30,
-            "price": 4.0
-        },
-        {
-            "product_id": 5,
-            "product_name": "Product D",
-            "quantity": 50,
-            "price": 2.3
-        },
-        {
-            "product_id": 6,
-            "product_name": "Product E",
-            "quantity": 300,
-            "price": 2.3
-        },
-        {
-            "product_id": 7,
-            "product_name": "product F",
-            "quantity": 500,
-            "price": 3.0
-        },
-        {
-            "product_id": 8,
-            "product_name": "Product Z",
-            "quantity": 50,
-            "price": 4.9
-        },
-        {
-            "product_id": 9,
-            "product_name": "Product 1",
-            "quantity": 240,
-            "price": 2.5
-        },
-        {
-            "product_id": 10,
-            "product_name": "Product 2",
-            "quantity": 230,
-            "price": 4.0
+            "product_name": "Photo Editor Pro",
+            "quantity": 100,
+            "price": 89.99,
+            "type": "digital",
+            "download_size": 1200.0
         }
     ]
 }

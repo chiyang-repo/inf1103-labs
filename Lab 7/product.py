@@ -28,6 +28,13 @@ class Product(ABC):
     def display_information(self):
         print(f"Product ID: {self.__product_id}, Name: {self.__name}, Price: ${self.__price:.2f}, Stock: {self.__stock}")
 
+    def to_dict(self): # Return the common product data as a dictionary, used when saving to JSON
+        return {
+            "product_id": self.__product_id,
+            "product_name": self.__name,
+            "quantity": self.__stock,
+            "price": self.__price
+        }
     @abstractmethod
     def get_fulfilment_info(self): 
         pass 

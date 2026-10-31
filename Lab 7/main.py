@@ -2,7 +2,9 @@ import json
 import re
 from datetime import datetime
 
-from product import Product
+from physical_product import PhysicalProduct
+from digital_product import DigitalProduct
+
 from inventory import Inventory
 
 def load_inventory(inventory): # Read inventory.json once and fill the Inventory with Product objects
@@ -10,7 +12,14 @@ def load_inventory(inventory): # Read inventory.json once and fill the Inventory
         with open("inventory.json", 'r') as file: # Open the JSON file in read mode
             inventory_data = json.load(file) # Load the raw dictionary data from the JSON file
             for item in inventory_data["products"]: # Each item is a dictionary from the JSON file
-                product = Product(item["product_id"], item["product_name"], item["price"], item["quantity"]) # Turn the dictionary into a Product object
+                product_type = item.get("type") # The type identifier decides which subclass to create
+                if product_type == "physical":
+                    product = PhysicalProduct(item["product_id"], item["product_name"], item["price"], item["quantity"], item["weight"])
+                elif product_type == "digital":
+                    product = DigitalProduct(item["product_id"], item["product_name"], item["price"], item["quantity"], item["download_size"])
+                else: # Missing or unknown type, so skip it instead of crashing
+                    print(f"Skipped product ID {item.get('product_id')}: unknown product type '{product_type}'.")
+                    continue
                 inventory.add_product(product) # add_product() puts it into Inventory's private list
             return True
     except FileNotFoundError: # The file does not exist, so leave the inventory empty
@@ -99,13 +108,8 @@ def search_product(inventory): # Ask the user for a name and display the matchin
 
 def save_inventory(inventory): # Write every Product back to inventory.json in one go
     inventory_data = {"products": []}
-    for product in inventory.get_products(): # Turn each Product object back into a dictionary
-        inventory_data["products"].append({
-            "product_id": product.get_product_id(),
-            "product_name": product.get_name(),
-            "quantity": product.get_stock(),
-            "price": product.get_price()
-        })
+    for product in inventory.get_products(): # Each product turns itself into a dictionary, including its type
+        inventory_data["products"].append(product.to_dict())
     with open("inventory.json", 'w') as file: # 'w' replaces the whole file with the current inventory
         json.dump(inventory_data, file, indent=4)
 

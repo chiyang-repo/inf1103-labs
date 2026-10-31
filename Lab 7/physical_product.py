@@ -16,6 +16,12 @@ class PhysicalProduct(Product, CanBeShipped):
         super().display_information()  # Display common product information
         print(f"Weight: {self.__weight}kg")  # Child adds the information unique to physical products  
 
+    def to_dict(self): # Override: reuse Product's dictionary, then add the type and weight
+        product_data = super().to_dict() # Parent builds the common fields
+        product_data["type"] = "physical" # Type identifier used when loading the JSON back
+        product_data["weight"] = self.__weight
+        return product_data
+
     def get_fulfilment_info(self): # Implements Product's abstract method
         return "This product requires physical shipping to the customer."
 
