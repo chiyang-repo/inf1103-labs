@@ -3,7 +3,7 @@ from product import Product
 # Inventory class: manages a collection of Product objects (Single Responsibility Principle)
 class Inventory:
     def __init__(self) -> None: # Initializer, starts with an empty inventory
-        self.__products : list[Product] = []# Private list that stores the Product objects
+        self.__products: list[Product] = []# Private list that stores the Product objects
 
     def add_product(self, product: Product) -> None: # Add a Product object to the inventory
         self.__products.append(product)
@@ -22,7 +22,7 @@ class Inventory:
         return None
 
 
-    def search_product(self, name: str) -> list: # Return a list of Products whose name contains the search text (case-insensitive)
+    def search_product(self, name: str) -> list[Product]: # Return a list of Products whose name contains the search text (case-insensitive)
         return [product for product in self.__products if name.lower() in product.get_name().lower()]
 
     def display_all(self) -> None: # Print every product in the inventory

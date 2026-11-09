@@ -4,8 +4,8 @@ from supplier import Supplier
 
 
 class PhysicalProduct(Product, CanBeShipped):
-    BASE_SHIPPING_FEE = 5.00 # Flat fee charged for every shipment
-    SHIPPING_RATE_PER_KG = 2.00 # Extra cost for each kilogram of weight
+    BASE_SHIPPING_FEE : float = 5.00 # Flat fee charged for every shipment
+    SHIPPING_RATE_PER_KG : float = 2.00 # Extra cost for each kilogram of weight
     def __init__(self, product_id: int, name: str, price: float, stock: int, weight: float, supplier: Supplier) -> None: # Initialize the PhysicalProduct with the common attributes and the unique weight
         super().__init__(product_id, name, price, stock, supplier)
         self.__weight: float = weight
