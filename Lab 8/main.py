@@ -103,7 +103,7 @@ def update_stock(inventory): # Ask the user which product to update and its new 
                 print(f"Invalid product ID. Please enter an ID between 1 and {len(products)}.")
                 continue
             else:
-                product = inventory.find_by_id(product_id) # Get the Product object with that ID
+                product = inventory.find_product(product_id) # Get the Product object with that ID
                 if product is None: # Safety net in case an ID inside the range does not exist
                     print("Invalid product ID. Please try again.")
                     continue
