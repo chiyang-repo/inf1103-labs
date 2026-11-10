@@ -38,7 +38,8 @@ class Product(ABC):
             "product_id": self.__product_id,
             "product_name": self.__name,
             "quantity": self.__stock,
-            "price": self.__price
+            "price": self.__price,
+            "supplier_id": self.__supplier.get_supplier_id()
         }
     @abstractmethod
     def get_fulfilment_info(self) -> str: # Abstract method to be implemented by subclasses, providing information on how the product is fulfilled
