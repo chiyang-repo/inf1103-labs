@@ -2,6 +2,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY *.py inventory.json inventory.txt /app/
+# Application code and data files
+COPY *.py inventory.json inventory.txt products.csv /app/
+
+# Automated tests, so they can run inside the container (like a CI pipeline)
+COPY tests/ /app/tests/
 
 CMD ["python", "main.py"]
