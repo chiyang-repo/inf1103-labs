@@ -5,12 +5,12 @@ from order import Order
 supplier = Supplier(1, "Tech Supplies Inc.", "techsupplies@example.com") # Create a Supplier object
 
 print("\n--- Valid product: good data still works ---")
-lamp = ProductFactory.create("physical", 1, "Desk Lamp", 25.00, 10, supplier, weight=1.2)
-print(f"Created: {lamp.get_name()}, price ${lamp.get_price():.2f}, stock {lamp.get_stock()}")
+guitar = ProductFactory.create("physical", 1, "guitar", 25.00, 10, supplier, weight=1.2)
+print(f"Created: {guitar.get_name()}, price ${guitar.get_price():.2f}, stock {guitar.get_stock()}")
 
 print("\n--- Price of zero ---")
 try:
-    ProductFactory.create("physical", 2, "Free Lamp", 0, 10, supplier, weight=1.2)
+    ProductFactory.create("physical", 2, "Free guitar", 0, 10, supplier, weight=1.2)
 except ValueError as error:
     print(f"Rejected: {error}")
 
@@ -35,11 +35,11 @@ except ValueError as error:
 print("\n--- Order line quantity of zero ---")
 order = Order(1)
 try:
-    order.add_order_line(lamp, 0)
+    order.add_order_line(guitar, 0)
 except ValueError as error:
     print(f"Rejected: {error}")
 print(f"Order lines after the rejected add: {len(order.get_order_lines())}") # Should still be 0, nothing half-added
 
 print("\n--- Valid order line still works ---")
-order.add_order_line(lamp, 2)
+order.add_order_line(guitar, 2)
 print(f"Order lines: {len(order.get_order_lines())}, total ${order.calculate_total():.2f}")

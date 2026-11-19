@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from supplier import Supplier
 
 class Product(ABC):
-    def __init__(self, product_id: int, name: str, price: float, stock: int, supplier: Supplier) -> None: # Initialize the Product with the common attributes and a Supplier object
+    def __init__(self, product_id: int | str, name: str, price: float, stock: int, supplier: Supplier) -> None: # Initialize the Product with the common attributes and a Supplier object
         if price <= 0:
             raise ValueError("Price must be greater than zero.")
         if stock < 0:

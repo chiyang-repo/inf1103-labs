@@ -35,15 +35,12 @@ def transactional_history(action: str, product_name: str, product_quantity: int,
         file.write(f"[{datetime.now()}] {action}: {product_name}, Quantity: {product_quantity}, Price: {product_price}, Supplier: {supplier.get_name()}\n")
 
 
-def validate_product_entry(product_name: str, product_quantity: str, product_price: str) -> bool: # Validate the product entry to ensure that all fields are filled and that the quantity and price are valid
-    if not product_name or not product_quantity or not product_price: # Check if any of the fields are empty
+def validate_product_entry(product_name: str, product_quantity: str) -> bool: # Validate that the name and quantity are filled in and the quantity is a non-negative whole number
+    if not product_name or not product_quantity: # Check if any of the fields are empty
         print("\nAll fields are required. Please provide valid inputs.")
         return False
-    elif not product_quantity.isdigit() or int(product_quantity) < 0: # Check if product quantity is a non-negative integer or a string
+    elif not product_quantity.isdigit() or int(product_quantity) < 0: # Check if product quantity is a non-negative integer
         print("\nInvalid quantity. Please enter a non-negative integer.")
-        return False
-    elif not re.match(r"^\d+(\.\d+)?$", product_price): # Check if product price is valid price format (non-negative number with optional decimal)
-        print("\nInvalid price. Please enter a non-negative number.")
         return False
     return True
 
@@ -56,12 +53,16 @@ def choose_product_type() -> str: # Ask the user whether the new product is phys
             return "digital"
         print("Invalid choice. Please enter 1 or 2.") # Keep asking until a valid choice is entered
 
-def ask_positive_number(prompt: str) -> float: # Keep asking until the user enters a number greater than 0 (used for weight and download size)
+def get_positive_float(prompt: str) -> float: # Keep asking until the user enters a number greater than 0 (used for price, weight and download size)
     while True:
-        value = input(prompt)
-        if re.match(r"^\d+(\.\d+)?$", value) and float(value) > 0: # Same number format as the price check, but 0 is not allowed
-            return float(value)
-        print("Invalid value. Please enter a number greater than 0.")
+        try:
+            value = float(input(prompt)) # float() raises ValueError for text like "abc"
+            if value <= 0: # Validation: the conversion worked but the number breaks the rule
+                print("Please enter a number greater than zero.")
+                continue
+            return value
+        except ValueError: # Exception handling: only catch the error we expect, not every error
+            print("Please enter a valid number, e.g. 12.50")
 
 def choose_supplier(suppliers: dict[int, Supplier]) -> Supplier: # Ask the user to choose a supplier from the list of suppliers, and return the selected Supplier object
     print("\nAvailable Suppliers:")
@@ -83,20 +84,19 @@ def add_product(inventory: Inventory, suppliers: dict[int, Supplier]) -> None: #
     while True:
         product_name = input("Enter the product name: ") # Prompt the user to enter the product name
         product_quantity = input("Enter the product quantity: ") # Prompt the user to enter the product quantity
-        product_price = input("Enter the product price: ") # Prompt the user to enter the product price
-        if validate_product_entry(product_name, product_quantity, product_price) is True: # Validate the common product details
+        if validate_product_entry(product_name, product_quantity) is True: # Validate the name and quantity
             break
         print("Invalid product entry. Please try again.") # Prompt the user to re-enter the product details if the entry is invalid
 
+    price = get_positive_float("Enter the product price: ") # Keeps asking until the price is a number greater than 0
     product_id = len(inventory.get_products()) + 1 # Get the next product ID based on the number of existing products
-    price = round(float(product_price), 2)
     quantity = int(product_quantity)
     weight = 0.0 # Only one of these two will be filled in, depending on the type
     download_size = 0.0
     if product_type == "physical": # This if only decides which question to ask, not which class to create
-        weight = ask_positive_number("Enter the product weight (kg): ") # Extra detail only physical products have
+        weight = get_positive_float("Enter the product weight (kg): ") # Extra detail only physical products have
     else:
-        download_size = ask_positive_number("Enter the download size (MB): ") # Extra detail only digital products have
+        download_size = get_positive_float("Enter the download size (MB): ") # Extra detail only digital products have
     product = ProductFactory.create(product_type, product_id, product_name, price, quantity, chosen_supplier, weight=weight, download_size=download_size) # The factory creates the correct subclass
     inventory.add_product(product) # Store it in the inventory (in memory, saved later)
     print("Product added successfully.")
