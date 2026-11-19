@@ -24,7 +24,7 @@ while True:
             print(f"\nInventory updated. Current stock: {inventory}")
     else: # Inventory limit reached
         count += 1 # Increment failed entry
-        print("\nInventory limit reached. Cannot add more items.")
+        print("\nInventory limit reached. Cannot add more items.\nTotal unit processed: {inventory} \nTotal number of failed entries: {count}")
         break #Exit the loop and program
 
         

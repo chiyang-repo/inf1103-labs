@@ -51,8 +51,14 @@
         {
             "product_id": 9,
             "product_name": "Product 1",
-            "quantity": 300,
+            "quantity": 240,
             "price": 2.5
+        },
+        {
+            "product_id": 10,
+            "product_name": "Product 2",
+            "quantity": 230,
+            "price": 4.0
         }
     ]
 }
