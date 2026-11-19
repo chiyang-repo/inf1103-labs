@@ -1,22 +1,51 @@
-from product import Product
+import unittest
 from supplier import Supplier
+from product import Product
+from physical_product import PhysicalProduct
+from digital_product import DigitalProduct
 from product_factory import ProductFactory
 
-supplier = Supplier(1, "Tech Supplies Inc.", "techsupplies@example.com") # Create a Supplier object
 
-guitar = ProductFactory.create("physical", 1, "Guitar", 50.00, 10, supplier, weight=5) # Create a PhysicalProduct object
-windows = ProductFactory.create("digital", 2, "Windows 11", 199.00, 50, supplier, download_size= 5400) # Create a DigitalProduct object
+class TestProductFactory(unittest.TestCase):
+    def setUp(self) -> None: # Runs before every test
+        self.supplier = Supplier(1, "Tech Supplies Inc.", "techsupplies@example.com")
 
-print("\n--- Polymorphism: each product shows its own child behaviour ---")
-for product in [guitar, windows]:
-    product.display_information()
-    print(product.get_fulfilment_info())
-    print(f"Is a Product? {isinstance(product, Product)}, actual class: {type(product).__name__}\n")
+    def test_creates_physical_product(self):
+        guitar = ProductFactory.create("physical", 1, "Guitar", 299.90, 5, self.supplier, weight=3.5)
+        self.assertIsInstance(guitar, PhysicalProduct)
+        self.assertEqual(guitar.get_weight(), 3.5)
 
-print("\n--- Unknown product type, caught with try/except ---")
-try:
-    ProductFactory.create("service", 4, "Installation", 30.00, 5, supplier)
-except ValueError as error:
-    print(f"Error caught: {error}")
+    def test_creates_digital_product(self):
+        windows = ProductFactory.create("digital", 2, "Windows 11", 199.00, 50, self.supplier, download_size=5400)
+        self.assertIsInstance(windows, DigitalProduct)
+        self.assertEqual(windows.get_download_size(), 5400)
 
-print("\n--- Program carries on after the caught error ---")
+    def test_factory_returns_base_type_product(self): # The rest of the program only needs to know about Product
+        for product_type in ["physical", "digital"]:
+            with self.subTest(product_type=product_type):
+                product = ProductFactory.create(product_type, 3, "Item", 10.00, 1, self.supplier)
+                self.assertIsInstance(product, Product)
+
+    def test_polymorphism_through_factory(self): # Same method call, each child gives its own answer
+        guitar = ProductFactory.create("physical", 1, "Guitar", 299.90, 5, self.supplier, weight=3.5)
+        windows = ProductFactory.create("digital", 2, "Windows 11", 199.00, 50, self.supplier, download_size=5400)
+        self.assertIn("shipping", guitar.get_fulfilment_info())
+        self.assertIn("download", windows.get_fulfilment_info())
+
+    def test_messy_type_text_is_accepted(self):
+        lamp = ProductFactory.create("  Physical ", 4, "Desk Lamp", 25.00, 10, self.supplier, weight=1.2)
+        self.assertIsInstance(lamp, PhysicalProduct)
+
+    def test_unknown_type_raises_clear_error(self): # Section 7: unknown type raises ValueError with a clear message
+        with self.assertRaisesRegex(ValueError, "Unknown product type: service"):
+            ProductFactory.create("service", 5, "Installation", 30.00, 5, self.supplier)
+
+    def test_main_does_not_create_products_directly(self): # Section 7: products are created through the factory
+        with open("main.py", encoding="utf-8") as file:
+            source = file.read()
+        self.assertNotIn("PhysicalProduct(", source)
+        self.assertNotIn("DigitalProduct(", source)
+
+
+if __name__ == "__main__":
+    unittest.main()
