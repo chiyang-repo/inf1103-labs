@@ -2,8 +2,7 @@ import json
 import re
 from datetime import datetime
 
-from physical_product import PhysicalProduct
-from digital_product import DigitalProduct
+from product_factory import ProductFactory
 from supplier import Supplier
 from inventory import Inventory
 
@@ -21,14 +20,10 @@ def load_inventory(inventory: Inventory, suppliers: dict[int, Supplier]) -> bool
                 if supplier is None: # If the supplier ID is not found, skip this product and print a warning
                     print(f"Skipped product ID {item.get('product_id')}: supplier ID {supplier_id} not found.")
                     continue
-                
-                product_type = item.get("type") # The type identifier decides which subclass to create
-                if product_type == "physical":
-                    product = PhysicalProduct(item["product_id"], item["product_name"], item["price"], item["quantity"], item["weight"], supplier)
-                elif product_type == "digital":
-                    product = DigitalProduct(item["product_id"], item["product_name"], item["price"], item["quantity"], item["download_size"], supplier)
-                else: # Missing or unknown type, so skip it instead of crashing
-                    print(f"Skipped product ID {item.get('product_id')}: unknown product type '{product_type}'.")
+                try: # The factory decides which subclass to create; it raises ValueError for an unknown type
+                    product = ProductFactory.create(item.get("type", ""), item["product_id"], item["product_name"], item["price"], item["quantity"], supplier, weight=item.get("weight", 0.0), download_size=item.get("download_size", 0.0)) 
+                except ValueError as error: # Unknown type: skip this product instead of crashing
+                    print(f"Skipped product ID {item.get('product_id')}: {error}")
                     continue
                 inventory.add_product(product) # add_product() puts it into Inventory's private list
             return True
@@ -96,17 +91,16 @@ def add_product(inventory: Inventory, suppliers: dict[int, Supplier]) -> None: #
     product_id = len(inventory.get_products()) + 1 # Get the next product ID based on the number of existing products
     price = round(float(product_price), 2)
     quantity = int(product_quantity)
-    if product_type == "physical":
+    weight = 0.0 # Only one of these two will be filled in, depending on the type
+    download_size = 0.0
+    if product_type == "physical": # This if only decides which question to ask, not which class to create
         weight = ask_positive_number("Enter the product weight (kg): ") # Extra detail only physical products have
-        product = PhysicalProduct(product_id, product_name, price, quantity, weight, chosen_supplier) # Create a PhysicalProduct object
     else:
         download_size = ask_positive_number("Enter the download size (MB): ") # Extra detail only digital products have
-        product = DigitalProduct(product_id, product_name, price, quantity, download_size, chosen_supplier) # Create a DigitalProduct object
-
+    product = ProductFactory.create(product_type, product_id, product_name, price, quantity, chosen_supplier, weight=weight, download_size=download_size) # The factory creates the correct subclass
     inventory.add_product(product) # Store it in the inventory (in memory, saved later)
     print("Product added successfully.")
     transactional_history(f"ADDED ({product_type})", product_name, quantity, price, chosen_supplier) # Log the addition, including its type
-
 
 def add_supplier(suppliers: dict[int, Supplier]) -> None: # Ask the user for a new supplier's details and add it to the suppliers dictionary
     while True:
