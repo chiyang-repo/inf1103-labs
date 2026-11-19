@@ -18,6 +18,15 @@ class PercentageDiscount(DiscountStrategy):
     def apply(self, total: float) -> float:
         return round(total * (1 - self.__percentage / 100), 2)
 
+class StudentDiscount(PercentageDiscount):
+    STUDENT_DISCOUNT: float = 5.00
+    def __init__(self) -> None:
+        super().__init__(self.STUDENT_DISCOUNT)
+
+    def student_discount(self) -> float:
+        return self.STUDENT_DISCOUNT
+
+        
 class BulkDiscount(DiscountStrategy):
     def __init__(self, threshold: float, amount: float) -> None:
         if threshold <= 0 or amount <= 0:
