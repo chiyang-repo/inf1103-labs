@@ -30,6 +30,30 @@ def load_products(path: str, inventory: Inventory, supplier: Supplier) -> None: 
     finally: # Always runs, whether the file was found or not
         print("Load attempt finished.")
 
+def load_inventory(inventory: Inventory, suppliers: dict[int, Supplier]) -> bool: # Read inventory.json once and fill the Inventory with Product objects
+    try:
+        with open("inventory.json", 'r') as file: # Open the JSON file in read mode
+            inventory_data = json.load(file) # Load the raw dictionary data from the JSON file
+            for supplier_item in inventory_data.get("suppliers", []): # Each item is a dictionary from the JSON file
+                supplier = Supplier(supplier_item["supplier_id"], supplier_item["name"], supplier_item["contact_email"])
+                suppliers[supplier.get_supplier_id()] = supplier # Store the Supplier object in the suppliers dictionary
+                
+            for item in inventory_data["products"]: # Each item is a dictionary from the JSON file
+                supplier_id = item.get("supplier_id") # Get the supplier ID from the product data
+                supplier = suppliers.get(supplier_id) # Retrieve the Supplier object from the suppliers dictionary 
+                if supplier is None: # If the supplier ID is not found, skip this product and print a warning
+                    print(f"Skipped product ID {item.get('product_id')}: supplier ID {supplier_id} not found.")
+                    continue
+                try: # The factory decides which subclass to create; it raises ValueError for an unknown type
+                    product = ProductFactory.create(item.get("type", ""), item["product_id"], item["product_name"], item["price"], item["quantity"], supplier, weight=item.get("weight", 0.0), download_size=item.get("download_size", 0.0)) 
+                except ValueError as error: # Unknown type: skip this product instead of crashing
+                    print(f"Skipped product ID {item.get('product_id')}: {error}")
+                    continue
+                inventory.add_product(product) # add_product() puts it into Inventory's private list
+            return True
+    except FileNotFoundError: # The file does not exist, so leave the inventory empty
+        return False
+
 def transactional_history(action: str, product_name: str, product_quantity: int, product_price: float, supplier: Supplier) -> None: # Log the product addition or update to the transactional history file
     with open("inventory.txt", 'a') as file:
         file.write(f"[{datetime.now()}] {action}: {product_name}, Quantity: {product_quantity}, Price: {product_price}, Supplier: {supplier.get_name()}\n")
@@ -182,7 +206,7 @@ def save_inventory(inventory: Inventory, suppliers: dict[int, Supplier]) -> None
 def main() -> None: # Main program loop, handles the menu and user choices
     inventory = Inventory() # Create the one Inventory object the whole program shares
     suppliers : dict[int, Supplier] = {}
-    if load_products(inventory, suppliers): # Read inventory.json ONCE, before the menu loop
+    if load_inventory(inventory, suppliers): # Read inventory.json ONCE, before the menu loop
         inventory_message = "\ninventory.json found. \ninventory loaded successfully."
     else:
         inventory_message = "\ninventory.json not found. Starting with an empty inventory."
