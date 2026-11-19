@@ -3,13 +3,17 @@ from supplier import Supplier
 
 class Product(ABC):
     def __init__(self, product_id: int, name: str, price: float, stock: int, supplier: Supplier) -> None: # Initialize the Product with the common attributes and a Supplier object
-        self.__product_id: int = product_id
+        if price <= 0:
+            raise ValueError("Price must be greater than zero.")
+        if stock < 0:
+            raise ValueError("Stock quantity cannot be negative.")
+        self.__product_id: int | str = product_id
         self.__name: str = name
         self.__price: float = price
         self.__stock: int = stock
         self.__supplier: Supplier = supplier
 
-    def get_product_id(self) -> int:
+    def get_product_id(self) -> int | str:
         return self.__product_id
 
     def get_name(self) -> str:

@@ -4,7 +4,7 @@ class OrderLine:
     def __init__(self, product: Product, quantity: int) -> None: # Initialize the OrderLine with a Product object and the quantity ordered
         self.__product: Product = product
         if not isinstance(quantity, int) or quantity < 1: # Validate that the quantity is a positive integer
-            raise ValueError("Quantity must be a positive integer.")
+            raise ValueError("Quantity must be greater than zero.")
         else:
             self.__quantity: int = quantity
 
