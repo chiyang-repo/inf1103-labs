@@ -1,11 +1,19 @@
 from product import Product
 from order_line import OrderLine
+from discount_strategy import DiscountStrategy, NoDiscount
 
 class Order:
-    def __init__(self, order_id: int) -> None: # Initialize the Order with an ID and a list of OrderLine objects
+    def __init__(self, order_id: int, discount: DiscountStrategy | None = None) -> None: # Initialize the Order with an ID and a list of OrderLine objects
         self.__order_id: int = order_id
         self.__order_lines: list[OrderLine] = []
+        if discount is None:
+            self.__discount: DiscountStrategy = NoDiscount()
+        else:
+            self.__discount = discount
 
+    def set_discount(self, discount: DiscountStrategy) -> None:
+        self.__discount = discount
+        
     def get_order_lines(self) -> list[OrderLine]: # Return a copy of the order lines, so outside code cannot change the order's own list
             return list(self.__order_lines)
 
@@ -17,7 +25,7 @@ class Order:
         total = 0.0
         for order_line in self.__order_lines:
             total += order_line.calculate_subtotal()
-        return total
+        return self.__discount.apply(total)
 
     def remove_order_line(self, product_id: int) -> None:  # Remove the order line for the product with this ID; the Order manages its own lines
         for order_line in self.__order_lines:
